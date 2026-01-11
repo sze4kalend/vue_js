@@ -24,7 +24,7 @@ const handleCheckout = () => {
     );
 
     checkoutPromise.then(() => {
-        cartStore.cartItems = []; // Kosár ürítése ha a fizetés ok
+        cartStore.clearCart();
     });
 };
 </script>
