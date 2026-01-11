@@ -1,9 +1,15 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { toast } from 'vue3-toastify'
 
 export const useCartStore = defineStore('cart', () => {
-    const cartItems = ref([])
+    // 1. Betöltés a LocalStorage-ból indításkor 
+    const savedCart = localStorage.getItem('webshop_cart')
+    const cartItems = ref(savedCart ? JSON.parse(savedCart) : [])
+    // 2. Mentés a LocalStorage-ba minden változáskor 
+    watch(cartItems, (newCart) => {
+        localStorage.setItem('webshop_cart', JSON.stringify(newCart))
+    }, { deep: true })
 
     const addToCart = (product) => {
         if (product.stock > 0) {
@@ -19,5 +25,11 @@ export const useCartStore = defineStore('cart', () => {
         return cartItems.value.reduce((sum, item) => sum + item.price, 0)
     })
 
-    return { cartItems, addToCart, totalCost }
+    // Kosár ürítése funkció a sikeres fizetéshez
+    const clearCart = () => {
+        cartItems.value = []
+        localStorage.removeItem('webshop_cart')
+    }
+
+    return { cartItems, addToCart, totalCost, clearCart }
 })
